@@ -2,11 +2,13 @@ import Filter from "../Components/Filter";
 import Categories from "../Components/Categories";
 import Card from "../Components/Cards/Cards";
 import Skeleton from "../Components/Cards/Skeleton";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Pagination from "../Components/Paginations/Pagination";
+import { Context } from "../App";
 
 
-const Home = ({searchValue, setSearchValue}) => {
+const Home = () => {
+  const {searchValue} = useContext(Context)
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [category, setCategory] = useState(0);
