@@ -16,7 +16,7 @@ const Search = () => {
   const updateSearchValue = useCallback(    // при рендере получаем ссылку с помощью useCallback(которая хранит в себе отложенную фунцию на 1000мс)
     debounce((str) => {
       setSearchValue(str)
-    }, 500),[],
+    }, 500), [],
   );
   const onChangeInput = (e) => {
     setValueInp(e.target.value);

@@ -6,11 +6,12 @@ import React, { useContext, useState } from "react";
 import Pagination from "../Components/Paginations/Pagination";
 import { Context } from "../App";
 import { useDispatch, useSelector } from "react-redux";
-import { setCategoryId, setCurrentPage, setPageCount } from "../redux/slices/filterSlice";
+import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
 import axios from "axios";
 
 const Home = () => {
-  const {category, sort, currentPage} = useSelector((state) => state.filter.categoryId);
+  const category = useSelector((state) => state.filter.categoryId);
+  const {currentPage} = useSelector((state) => state.filter);
   const dispatch = useDispatch();
   const sortType = useSelector(state => state.filter.sort.sortProperty);
   // useSelector - функция закидует состояние в хранилища( глобальным хранилещем являеться файл store.js
