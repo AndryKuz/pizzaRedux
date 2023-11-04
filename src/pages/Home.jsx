@@ -6,13 +6,14 @@ import React, { useContext, useState } from "react";
 import Pagination from "../Components/Paginations/Pagination";
 import { Context } from "../App";
 import { useDispatch, useSelector } from "react-redux";
-import { setCategoryId } from "../redux/slices/filterSlice";
+import { setCategoryId, setCurrentPage, setPageCount } from "../redux/slices/filterSlice";
+import axios from "axios";
 
 const Home = () => {
-  const category = useSelector((state) => state.filter.categoryId);
+  const {category, sort, currentPage} = useSelector((state) => state.filter.categoryId);
   const dispatch = useDispatch();
   const sortType = useSelector(state => state.filter.sort.sortProperty);
-  // useSelector - функция которая вытаскивает из хранилища( глобальным хранилещем являеться файл store.js
+  // useSelector - функция закидует состояние в хранилища( глобальным хранилещем являеться файл store.js
   // в котором пока что есть только один срез(это filter) структура которого находиться в файле filterSlice.js)
   // По сути хук useSelector который вытаскивает данныех из глобального хранилища
   // state.filter.categoryId - state это - reducer(store.js), filter это -(обьект reducer в store.js), categoryId - это 
@@ -22,30 +23,36 @@ const Home = () => {
   const { searchValue } = useContext(Context);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  // const [category, setCategory] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
  
 
   const onClickCategory = (id) => { // получаем id выбранной категории
     dispatch(setCategoryId(id));
   }
-  console.log(category);
+  const onChangePage = (number) => {
+    dispatch(setCurrentPage(number))
+  }
   React.useEffect(() => {
-    const order = category.sortType.includes("-") ? "asc" : "desc";
-    const sortBy = category.sortType.replace("-", "");
+    const order = sortType.includes("-") ? "asc" : "desc";
+    const sortBy = sortType.replace("-", "");
     const categoryUrl = category > 0 ? `category=${category}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
 
     setIsLoading(true);
-    fetch(
-      `https://65290c7355b137ddc83e1bfb.mockapi.io/items?page=${currentPage}&limit=3&${categoryUrl}&sortBy=${sortBy}&order=${order}${search}`
-    )
-      .then((res) => res.json())
-      .then((arr) => {
-        setItems(arr);
-        setIsLoading(false);
-      });
-  }, [category, searchValue, currentPage]);
+    // fetch(
+    //   `https://65290c7355b137ddc83e1bfb.mockapi.io/items?page=${currentPage}&limit=3&${categoryUrl}&sortBy=${sortBy}&order=${order}${search}`
+    // )
+    //   .then((res) => res.json())
+    //   .then((arr) => {
+    //     setItems(arr);
+    //     setIsLoading(false);
+    //   });
+    axios
+    .get(`https://65290c7355b137ddc83e1bfb.mockapi.io/items?page=${currentPage}&limit=3&${categoryUrl}&sortBy=${sortBy}&order=${order}${search}`)
+    .then(resposnse => {
+      setItems(resposnse.data);
+      setIsLoading(false);
+    });
+  }, [category, sortType, searchValue, currentPage]);
 
   return (
     <div>
@@ -64,7 +71,7 @@ const Home = () => {
           ? [...new Array(3)].map((_, index) => <Skeleton key={index} />)
           : items.map((obj) => <Card key={obj.id} {...obj} />)}
       </div>
-      <Pagination onChangePage={(number) => setCurrentPage(number)} />
+      <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </div>
   );
 };

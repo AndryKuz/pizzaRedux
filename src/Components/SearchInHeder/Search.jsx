@@ -1,13 +1,30 @@
-import { useContext } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import style from "./Search.module.scss";
 import { Context } from "../../App";
+import debounce from "lodash.debounce";
 
 const Search = () => {
-  const {searchValue, setSearchValue} = useContext(Context)
+  const [valueInp, setValueInp] = useState("");
+  const { setSearchValue } = useContext(Context);
+  const inputRef = useRef(); // грубо говоря получаем ссылку на инпут ( по сути вместо document.querySelector("input")), затем эту ссылку передаем в input  в качестве аргумента ref={inputRef}
+  
+  const onClickClearInput = () => {
+    setSearchValue(""); // очищаем инпут при нажатии на крестик( не збыть передать эту функию клика на svg крестик) onClick={onClickClearInput}
+    setValueInp('');  // делаем очистку локальную(так как в инпуте у нас 2 state локальный - valueInp и общий - setSearchValue)
+    inputRef.current.focus(); // после очищения инпута ставим фокус в инпуте, что бы дальше пробовать что то вводить( без этого нужно было бы сначала нажать на сам инпут что бы его активировать)
+  };
+  const updateSearchValue = useCallback(    // при рендере получаем ссылку с помощью useCallback(которая хранит в себе отложенную фунцию на 1000мс)
+    debounce((str) => {
+      setSearchValue(str)
+    }, 500),[],
+  );
+  const onChangeInput = (e) => {
+    setValueInp(e.target.value);
+    updateSearchValue(e.target.value);
+  };
   return (
     <div className={style.root}>
       <svg
-        
         className={style.search}
         xmlns="http://www.w3.org/2000/svg"
         id="Outline"
@@ -17,13 +34,15 @@ const Search = () => {
       >
         <path d="M23.707,22.293l-5.969-5.969a10.016,10.016,0,1,0-1.414,1.414l5.969,5.969a1,1,0,0,0,1.414-1.414ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z" />
       </svg>
-      <input 
-      value={searchValue}
-      onChange={e => setSearchValue(e.target.value)}
-      className={style.inp} 
-      placeholder="Поиск по сайту" />
+      <input
+        ref={inputRef}
+        value={valueInp}
+        onChange={onChangeInput}
+        className={style.inp}
+        placeholder="Поиск по сайту"
+      />
       <svg
-        onClick={() => setSearchValue('')}
+        onClick={onClickClearInput}
         className={style.delBut}
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
