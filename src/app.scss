@@ -181,6 +181,8 @@ body {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-width: 200px;
+      
       
 
       h3 {
@@ -236,6 +238,7 @@ body {
       display: flex;
       align-items: center;
       justify-content: center;
+      min-width: 100px;
       
 
       b {

@@ -1,11 +1,28 @@
 import { useState } from "react";
-
-
-const Card = ({name, price, imageUrl, sizes, types}) => {
-
+import { addItem } from "../../redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
 const typePizza = ['Тонкое', 'Традиционное'];
-const [activeType, setActiveType] = useState(0)
-const [activeSize, setActiveSize] = useState(0)
+
+const Card = ({id, name, price, imageUrl, sizes, types}) => {
+const dispatch = useDispatch();
+const [activeType, setActiveType] = useState(0);
+const [activeSize, setActiveSize] = useState(0);
+const cardItemId = useSelector((state) => state.cart.totalPizzas.find((obj) => obj.id === id));
+const addCountButton = cardItemId ? cardItemId.count : 0;
+
+
+
+const onClickAdd = () => {
+  const item = {
+    id,       // id передаем из Home(<Card key={obj.id} {...obj} />)}) через props
+    name,
+    price,
+    imageUrl,
+    type: activeType,       // передаем стейт, так как нам нужно что было выбрано конкретно из категории Тонкое или Толстое тесто
+    size: activeSize        // аналогично стейт выбраного размера пиццы
+  }
+  dispatch(addItem(item))
+}
 
 
   return (
@@ -35,7 +52,7 @@ const [activeSize, setActiveSize] = useState(0)
               </div>
               <div className="pizza-block__bottom">
                 <div className="pizza-block__price">от {price} ₽</div>
-                <button className="button button--outline button--add">
+                <button onClick={onClickAdd} className="button button--outline button--add">
                   <svg
                     width="12"
                     height="12"
@@ -49,7 +66,7 @@ const [activeSize, setActiveSize] = useState(0)
                     />
                   </svg>
                   <span>Добавить</span>
-                  <i>1</i>
+                  {addCountButton > 0 && <i>{addCountButton}</i>}
                 </button>
               </div>
             </div>

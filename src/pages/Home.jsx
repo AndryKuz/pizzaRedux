@@ -6,10 +6,14 @@ import React, { useContext, useState } from "react";
 import Pagination from "../Components/Paginations/Pagination";
 import { Context } from "../App";
 import { useDispatch, useSelector } from "react-redux";
-import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
+import { setCategoryId, setCurrentPage, setSort } from "../redux/slices/filterSlice";
 import axios from "axios";
+import qs from 'qs';
+import { useNavigate } from "react-router";
+
 
 const Home = () => {
+  const navigate = useNavigate();
   const category = useSelector((state) => state.filter.categoryId);
   const {currentPage} = useSelector((state) => state.filter);
   const dispatch = useDispatch();
@@ -32,6 +36,18 @@ const Home = () => {
   const onChangePage = (number) => {
     dispatch(setCurrentPage(number))
   }
+  // React.useEffect(() => {
+  //   if (window.location.search) {
+  //     const params = qs.parse(window.location.search.substring(1));//substring(1) нужен что бы убрать ?знак - '?sortType=rating&category=0&currentPage=1' 
+  //     // а будет 'sortType=rating&category=0&currentPage=1'
+
+  //     const sort = sortList.find(obj => obj.sortProperty === params.sortProperty)
+  //     dispatch(setSort({
+  //       ...params,
+  //       sort,
+  //     }))
+  //   }
+  // }, [])
   React.useEffect(() => {
     const order = sortType.includes("-") ? "asc" : "desc";
     const sortBy = sortType.replace("-", "");
@@ -54,6 +70,15 @@ const Home = () => {
       setIsLoading(false);
     });
   }, [category, sortType, searchValue, currentPage]);
+
+  React.useEffect(() => {
+    const queryString = qs.stringify({
+      sortType,
+      category,
+      currentPage,
+    })
+    navigate(`?${queryString}`);
+  },[category, sortType, searchValue, currentPage])
 
   return (
     <div>
